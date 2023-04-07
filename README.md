@@ -2,8 +2,9 @@
 
 ### Comandos
 
-```/random```  
+```/random [testament?] [book?] [chapter?]```  
 Manda um versículo aleatório.  
+Ex: /random antigo
 
 ```/chapter [book] [chapter]```  
 Manda o capítulo completo de um livro.  
@@ -13,9 +14,9 @@ Ex: /chapter g 1
 Manda os versículos selecionados de um capítulo  
 Ex: /verse gensis 6 1-7
 
-```/search [expression] [book?] [chapter?] [testament?]```  
+```/search [expression] [testament?] [book?] [chapter?]```  
 Procura por uma expressão, retornando no máximo 25 resultados.  
-Você pode limitar a pesquisa por livros, capítulos ou testamento.  
+Você pode limitar a pesquisa por testamento, livro ou capítulo.  
 Ex: /search jesus
 
 ### Quick Start

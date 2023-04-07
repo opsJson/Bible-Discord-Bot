@@ -23,6 +23,11 @@ client.on("ready", () => {
 			required: true
 		},
 		{
+			name: "testament",
+			description: "antigo ou novo",
+			type: 3
+		},
+		{
 			name: "book",
 			description: "Nome do livro",
 			type: 3
@@ -30,12 +35,7 @@ client.on("ready", () => {
 		{
 			name: "chapter",
 			description: "Número do capítulo",
-			type: 10			
-		},
-		{
-			name: "testament",
-			description: "Limitar pesquisa: antigo ou novo",
-			type: 3
+			type: 10
 		}]
 	});
 	client.application.commands.create({
@@ -80,7 +80,23 @@ client.on("ready", () => {
 	});
 	client.application.commands.create({
 		name: "random",
-		description: "Manda um versículo aleatório."
+		description: "Manda um versículo aleatório.",
+		options: [
+		{
+			name: "testament",
+			description: "antigo ou novo",
+			type: 3
+		},
+		{
+			name: "book",
+			description: "Nome do livro",
+			type: 3
+		},
+		{
+			name: "chapter",
+			description: "Número do capítulo",
+			type: 10
+		}]
 	});
 	console.log("Bible bot online!");
 });
@@ -88,9 +104,9 @@ client.on("ready", () => {
 client.on("interactionCreate", async interaction => {
 	if (interaction.commandName == "search") {
 		const expression = interaction.options.getString("expression").trim();
+		const testament = interaction.options.getString("testament")?.trim();
 		const book = interaction.options.getString("book")?.trim();
 		const chapter = interaction.options.getNumber("chapter");
-		const testament = interaction.options.getString("testament")?.trim();
 		const correctBook = book && getCorrectBook(book);
 		
 		const embed = new EmbedBuilder()
@@ -206,7 +222,13 @@ client.on("interactionCreate", async interaction => {
 		});
 	}
 	else if (interaction.commandName == "random") {
-		const random = await getRandom();
+		const testament = interaction.options.getString("testament")?.trim();
+		const book = interaction.options.getString("book")?.trim();
+		const chapter = interaction.options.getNumber("chapter");
+		const correctBook = book && getCorrectBook(book);
+		
+		const random = await getRandom(testament, correctBook, chapter);
+		
 		const embed = new EmbedBuilder()
 			.setTitle(`${random.book} ${random.chapter}:${random.verse}`)
 			.setDescription(random.text)
@@ -237,15 +259,17 @@ function getCorrectBook(input) {
 
 function getPassages(expression, book, chapter, testament) {
 	let more = "";
-	if (book) more += `and book = "${book}" `;
-	if (chapter) more += `and chapter = "${chapter}" `;
-	if (testament == "antigo") more += `and id <  23136`;
-	else if (testament == "novo") more += `and id >= 23136`;
-	return get(`SELECT * FROM biblia where text like "%${expression}%" ${more} order by id`);
+	
+	if (testament == "antigo") more += `AND id < 23136 `;
+	else if (testament == "novo") more += `AND id >= 23136 `;
+	if (book) more += `AND book = "${book}" `;
+	if (chapter) more += `AND chapter = "${chapter}" `;
+	
+	return get(`SELECT * FROM biblia WHERE text LIKE "%${expression}%" ${more} ORDER BY id`);
 }
 
 async function getChapter(book, chapter) {
-	const verses = await get(`SELECT text FROM biblia where book like "${book}" and chapter = "${chapter}" order by verse`);
+	const verses = await get(`SELECT text FROM biblia WHERE book LIKE "${book}" AND chapter = "${chapter}" ORDER BY verse`);
 	
 	let n = 1;
 	let text = "";
@@ -260,7 +284,7 @@ async function getVerse(book, chapter, verse) {
 	const minVerse = rangeVerse?.[0] || verse;
 	const maxVerse = rangeVerse?.[1] || verse;
 	
-	const verses = await get(`SELECT text FROM biblia where book like "${book}" and chapter = "${chapter}" and verse >= ${minVerse} and verse <= ${maxVerse}`);
+	const verses = await get(`SELECT text FROM biblia WHERE book LIKE "${book}" AND chapter = "${chapter}" AND verse >= ${minVerse} AND verse <= ${maxVerse}`);
 	
 	let n = minVerse;
 	let text = "";
@@ -270,8 +294,15 @@ async function getVerse(book, chapter, verse) {
 	return text;
 }
 
-async function getRandom() {
-	const obj = await get(`SELECT * FROM biblia ORDER BY RANDOM() LIMIT 1`);
+async function getRandom(testament, book, chapter) {
+	let more = "";
+	
+	if (testament == "antigo") more += `AND id < 23136 `;
+	else if (testament == "novo") more += `AND id >= 23136 `;
+	if (book) more += `AND book = "${book}" `;
+	if (chapter) more += `AND chapter = "${chapter}" `;
+	
+	const obj = await get(`SELECT * FROM biblia WHERE id = id ${more} ORDER BY RANDOM() LIMIT 1`);
 	return obj[0];
 }
 
