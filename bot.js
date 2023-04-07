@@ -14,13 +14,28 @@ const db = new sqlite3.Database("biblia.db");
 client.on("ready", () => {
 	client.application.commands.create({
 		name: "search",
-		description: "Procura todos os versículos em que aparece uma expressão.",
+		description: "Procura até 25 versículos em que aparece uma expressão.",
 		options: [
 		{
 			name: "expression",
-			description: "expressão para pesquisar",
+			description: "Expressão para pesquisar",
 			type: 3,
 			required: true
+		},
+		{
+			name: "book",
+			description: "Nome do livro",
+			type: 3
+		},
+		{
+			name: "chapter",
+			description: "Número do capítulo",
+			type: 10			
+		},
+		{
+			name: "testament",
+			description: "Limitar pesquisa: antigo ou novo",
+			type: 3
 		}]
 	});
 	client.application.commands.create({
@@ -73,12 +88,16 @@ client.on("ready", () => {
 client.on("interactionCreate", async interaction => {
 	if (interaction.commandName == "search") {
 		const expression = interaction.options.getString("expression").trim();
+		const book = interaction.options.getString("book")?.trim();
+		const chapter = interaction.options.getNumber("chapter");
+		const testament = interaction.options.getString("testament")?.trim();
+		const correctBook = book && getCorrectBook(book);
 		
 		const embed = new EmbedBuilder()
 			.setTitle(`Resultados para: "${expression}"`)
 			.setColor(0x964b00);
 		
-		const passages = await getPassages(expression);
+		const passages = await getPassages(expression, correctBook, chapter, testament);
 		
 		if (passages.length == 0) {
 			const embed = new EmbedBuilder()
@@ -216,8 +235,13 @@ function getCorrectBook(input) {
 	return books[index];
 }
 
-function getPassages(expression) {
-	return get(`SELECT * FROM biblia where text like "%${expression}%" order by id`);
+function getPassages(expression, book, chapter, testament) {
+	let more = "";
+	if (book) more += `and book = "${book}" `;
+	if (chapter) more += `and chapter = "${chapter}" `;
+	if (testament == "antigo") more += `and id <  23136`;
+	else if (testament == "novo") more += `and id >= 23136`;
+	return get(`SELECT * FROM biblia where text like "%${expression}%" ${more} order by id`);
 }
 
 async function getChapter(book, chapter) {
