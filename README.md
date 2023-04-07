@@ -13,8 +13,9 @@ Ex: /chapter g 1
 Manda os versículos selecionados de um capítulo  
 Ex: /verse gensis 6 1-7
 
-```/search [expression]```  
-Procura por uam expressão, retornando no máximo 25 resultados.  
+```/search [expression] [book?] [chapter?] [testament?]```  
+Procura por uma expressão, retornando no máximo 25 resultados.  
+Você pode limitar a pesquisa por livros, capítulos ou testamento.  
 Ex: /search jesus
 
 ### Quick Start
