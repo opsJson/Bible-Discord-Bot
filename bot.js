@@ -109,7 +109,7 @@ client.on("interactionCreate", async interaction => {
 		const chapter = interaction.options.getNumber("chapter");
 		const correctBook = book && getCorrectBook(book);
 		
-		const passages = await getPassages(expression, correctBook, chapter, testament);
+		const passages = await getPassages(expression, testament, correctBook, chapter);
 		
 		if (passages.length == 0) {
 			const embed = new EmbedBuilder()
@@ -257,7 +257,7 @@ function getCorrectBook(input) {
 	return books[index];
 }
 
-function getPassages(expression, book, chapter, testament) {
+function getPassages(expression, testament, book, chapter) {
 	let more = "";
 	
 	if (testament == "antigo") more += `AND id < 23136 `;
