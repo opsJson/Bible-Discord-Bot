@@ -18,6 +18,7 @@ Procura por uam expressão, retornando no máximo 25 resultados.
 Ex: /search jesus
 
 ### Quick Start
+Mude ```DiscordToken``` para o token do seu bot.
 
 ```bash
 npm init -y
