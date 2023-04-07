@@ -109,10 +109,6 @@ client.on("interactionCreate", async interaction => {
 		const chapter = interaction.options.getNumber("chapter");
 		const correctBook = book && getCorrectBook(book);
 		
-		const embed = new EmbedBuilder()
-			.setTitle(`Resultados para: "${expression}"`)
-			.setColor(0x964b00);
-		
 		const passages = await getPassages(expression, correctBook, chapter, testament);
 		
 		if (passages.length == 0) {
@@ -128,6 +124,10 @@ client.on("interactionCreate", async interaction => {
 			
 			return;
 		}
+		
+		const embed = new EmbedBuilder()
+			.setTitle(`Resultados para: "${expression}"`)
+			.setColor(0x964b00);
 		
 		passages.forEach((passage, index) => {
 			if (index >= 25) return;
