@@ -36,6 +36,11 @@ client.on("ready", () => {
 			name: "chapter",
 			description: "Número do capítulo",
 			type: 10
+		},
+		{
+			name: "limit",
+			description: "Quantidade de versículos: 1 até 25",
+			type: 10
 		}]
 	});
 	client.application.commands.create({
@@ -107,6 +112,7 @@ client.on("interactionCreate", async interaction => {
 		const testament = interaction.options.getString("testament")?.trim();
 		const book = interaction.options.getString("book")?.trim();
 		const chapter = interaction.options.getNumber("chapter");
+		const limit = Math.min(interaction.options.getNumber("limit"), 25) || 25;
 		const correctBook = book && getCorrectBook(book);
 		
 		const passages = await getPassages(expression, testament, correctBook, chapter);
@@ -130,7 +136,7 @@ client.on("interactionCreate", async interaction => {
 			.setColor(0x964b00);
 		
 		passages.forEach((passage, index) => {
-			if (index >= 25) return;
+			if (index >= limit) return;
 			
 			let text = passage.text;
 			const regex = RegExp(expression, "ig");
@@ -169,26 +175,37 @@ client.on("interactionCreate", async interaction => {
 			return;
 		}
 		
-		const chunks = [];
-		const lines = description.split("\n");
-		for (let i = 0; i < lines.length; i += 15) {
-			chunks.push(lines.slice(i, i + 15));
-		}
+		const pages = description.match(/[\s\S]{1,5000}/g);
 		
-		const embeds = [];
-		chunks.forEach(chunk => {
-			if (chunk.join("\n").length == 0) return;
+		pages.forEach((page, index) => {
+			const chunks = [];
+			const lines = page.split("\n");
+			for (let i = 0; i < lines.length; i += 15) {
+				chunks.push(lines.slice(i, i + 15));
+			}
 			
-			const embed = new EmbedBuilder()
-				.setTitle(`${correctBook} ${chapter}`)
-				.setDescription(chunk.join("\n"))
-				.setColor(0x964b00);
+			const embeds = [];
+			chunks.forEach(chunk => {
+				if (chunk.join("\n").length == 0) return;
+				
+				const embed = new EmbedBuilder()
+					.setTitle(`${correctBook} ${chapter}`)
+					.setDescription(chunk.join("\n"))
+					.setColor(0x964b00);
+				
+				embeds.push(embed);
+			});
 			
-			embeds.push(embed);
-		});
-		
-		interaction.reply({
-			embeds: embeds
+			if (index == 0) {
+				interaction.reply({
+					embeds: embeds
+				});
+			}
+			else {
+				interaction.channel.send({
+					embeds: embeds
+				});
+			}
 		});
 	}
 	else if (interaction.commandName == "verse") {
@@ -243,7 +260,7 @@ client.on("interactionCreate", async interaction => {
 client.login(DiscordToken);
 
 function getCorrectBook(input) {
-	const books = ["genesis", "exodo", "levitico", "numeros", "deuteronômio", "josue", "juizes", "rute", "1 samuel", "2 samuel", "1 reis", "2 reis", "1 cronicas", "2 cronicas", "esdras", "neemias", "ester", "jo", "salmos", "proverbios", "eclesiastes", "canticos", "isaias", "jeremias", "lamentacoes", "ezequiel", "daniel", "oseias", "joel", "amos", "obadias", "jonas", "miqueias", "naum", "habacuque", "sofonias", "ageu", "zacarias", "malaquias", "mateus", "marcos", "lucas", "joao", "atos", "romanos", "1 corintios", "2 corintios", "galatas", "efesios", "filipenses", "colossenses", "1 tessalonicenses", "2 tessalonicenses", "1 timoteo", "2 timoteo", "tito", "filemom", "hebreus", "tiago", "1 pedro", "2 pedro", "1 joao", "2 joao", "3 joao", "judas", "apocalipse"];
+	const books = ["genesis", "exodo", "levitico", "numeros", "deuteronomio", "josue", "juizes", "rute", "1 samuel", "2 samuel", "1 reis", "2 reis", "1 cronicas", "2 cronicas", "esdras", "neemias", "ester", "jo", "salmos", "proverbios", "eclesiastes", "canticos", "isaias", "jeremias", "lamentacoes", "ezequiel", "daniel", "oseias", "joel", "amos", "obadias", "jonas", "miqueias", "naum", "habacuque", "sofonias", "ageu", "zacarias", "malaquias", "mateus", "marcos", "lucas", "joao", "atos", "romanos", "1 corintios", "2 corintios", "galatas", "efesios", "filipenses", "colossenses", "1 tessalonicenses", "2 tessalonicenses", "1 timoteo", "2 timoteo", "tito", "filemom", "hebreus", "tiago", "1 pedro", "2 pedro", "1 joao", "2 joao", "3 joao", "judas", "apocalipse"];
 	
 	input = input.toLowerCase();
 	
@@ -269,7 +286,7 @@ function getPassages(expression, testament, book, chapter) {
 }
 
 async function getChapter(book, chapter) {
-	const verses = await get(`SELECT text FROM biblia WHERE book LIKE "${book}" AND chapter = "${chapter}" ORDER BY verse`);
+	const verses = await get(`SELECT text FROM biblia WHERE book = "${book}" AND chapter = "${chapter}" ORDER BY verse`);
 	
 	let n = 1;
 	let text = "";
