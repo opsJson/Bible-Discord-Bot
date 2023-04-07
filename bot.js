@@ -243,7 +243,7 @@ client.on("interactionCreate", async interaction => {
 client.login(DiscordToken);
 
 function getCorrectBook(input) {
-	const books = ["genesis", "exodo", "levitico", "numeros", "deuteronômio", "josue", "juizes", "rute", "1 samuel", "2 samuel", "1 reis", "2 reis", "1 cronicas", "2 cronicas", "esdras", "neemias", "ester", "jo", "salmos", "proverbios", "eclesiastes", "canticos", "isaias", "jeremias", "lamentacoes", "ezequiel", "daniel", "oseias", "joel", "amos", "obadias", "jonas", "miqueias", "naum", "habacuque", "sofonias", "ageu", "zacarias", "malaquias", "mateus", "marcos", "lucas", "joão", "atos", "romanos", "1 corintios", "2 corintios", "galatas", "efesios", "filipenses", "colossenses", "1 tessalonicenses", "2 tessalonicenses", "1 timoteo", "2 timoteo", "tito", "filemom", "hebreus", "tiago", "1 pedro", "2 pedro", "1 joao", "2 joao", "3 joao", "judas", "apocalipse"];
+	const books = ["genesis", "exodo", "levitico", "numeros", "deuteronômio", "josue", "juizes", "rute", "1 samuel", "2 samuel", "1 reis", "2 reis", "1 cronicas", "2 cronicas", "esdras", "neemias", "ester", "jo", "salmos", "proverbios", "eclesiastes", "canticos", "isaias", "jeremias", "lamentacoes", "ezequiel", "daniel", "oseias", "joel", "amos", "obadias", "jonas", "miqueias", "naum", "habacuque", "sofonias", "ageu", "zacarias", "malaquias", "mateus", "marcos", "lucas", "joao", "atos", "romanos", "1 corintios", "2 corintios", "galatas", "efesios", "filipenses", "colossenses", "1 tessalonicenses", "2 tessalonicenses", "1 timoteo", "2 timoteo", "tito", "filemom", "hebreus", "tiago", "1 pedro", "2 pedro", "1 joao", "2 joao", "3 joao", "judas", "apocalipse"];
 	
 	input = input.toLowerCase();
 	
