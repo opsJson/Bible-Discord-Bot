@@ -238,9 +238,10 @@ async function getVerse(book, chapter, verse) {
 	
 	const verses = await get(`SELECT text FROM biblia where book like "${book}" and chapter = "${chapter}" and verse >= ${minVerse} and verse <= ${maxVerse}`);
 	
+	let n = minVerse;
 	let text = "";
 	verses.forEach(verse => {
-		text += `${minVerse++}. ` + verse.text + "\n";
+		text += `${n++}. ` + verse.text + "\n";
 	});
 	return text;
 }
